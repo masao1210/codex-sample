@@ -21,11 +21,15 @@ source .venv/bin/activate          # Windows は .venv\Scripts\activate
 pip install -r requirements.txt
 python manage.py migrate
 python manage.py createsuperuser   # ログイン用のユーザーを作る
-python manage.py load_demo         # （任意）お試し用のサンプルデータを入れる
+python manage.py load_demo         # （任意）お試し用のダミーデータを入れる
 python manage.py runserver
 ```
 
 ブラウザで http://127.0.0.1:8000/ を開き、作成したユーザーでログインします。
+`load_demo` は得意先100件・商品100件（食品・文具・日用品・電子機器）と、仕入先1件、売上伝票24件・仕入伝票12件を登録します。
+件数は `--customers 50` のように変えられます。何度実行しても重複せず、同じコードのマスタがあればそのまま残します。
+ダミーの電話番号は「市外局番-0000-連番」、メールは例示用ドメイン `example.com` で、実在の連絡先には当たりません。
+
 ユーザーの追加は管理画面 http://127.0.0.1:8000/admin/ から行えます。
 
 ### 設定（環境変数）
