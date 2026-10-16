@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}入金一覧{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>入金一覧</h1>
+  <div class="actions"><a class="btn primary" href="{% url 'payments:create' %}">＋ 入金を登録</a></div>
+</div>
+<form method="get" class="filters">
+  <label>期間 <input type="date" name="date_from" value="{{ request.GET.date_from }}"></label>
+  〜 <input type="date" name="date_to" value="{{ request.GET.date_to }}">
+  <input type="search" name="customer" value="{{ request.GET.customer }}" placeholder="得意先名・コード">
+  <button type="submit" class="btn">検索</button>
+  <a href="?" class="btn-link">クリア</a>
+</form>
+<table class="list">
+  <thead><tr><th>入金番号</th><th>入金日</th><th>得意先</th><th>方法</th><th class="num">入金額</th><th class="num">手数料・値引</th><th>請求書</th><th>備考</th></tr></thead>
+  <tbody>
+  {% for p in object_list %}
+    <tr>
+      <td>{% if p.is_locked %}{{ p.number }}{% else %}<a href="{% url 'payments:update' p.pk %}">{{ p.number }}</a>{% endif %}</td>
+      <td>{{ p.date|date:"Y/m/d" }}</td>
+      <td>{{ p.customer.name }}</td>
+      <td>{{ p.get_method_display }}</td>
+      <td class="num">{{ p.amount|intcomma }}</td>
+      <td class="num">{{ p.fee|intcomma }}</td>
+      <td>{% if p.invoice %}<a href="{{ p.invoice.get_absolute_url }}">{{ p.invoice.number }}</a>{% else %}<span class="muted">未請求</span>{% endif %}</td>
+      <td>{{ p.notes }}</td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="8" class="muted">入金がありません。</td></tr>
+  {% endfor %}
+  </tbody>
+  {% if object_list %}
+  <tfoot><tr><th colspan="4">検索結果の合計</th><th class="num">{{ totals.amount|intcomma }}</th><th class="num">{{ totals.fee|intcomma }}</th><th colspan="2"></th></tr></tfoot>
+  {% endif %}
+</table>
+{% include "core/pagination.html" %}
+<p class="muted small">請求書に入った入金は、その請求書を取り消すまで変更できません。</p>
+{% endblock %}

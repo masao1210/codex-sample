@@ -5,6 +5,8 @@ from django.db.models.functions import TruncMonth
 from django.shortcuts import render
 from django.utils import timezone
 
+from billing.models import Payment
+from billing.services import customers_with_balances
 from purchases.models import PurchaseSlip
 from sales.models import SalesSlip
 
@@ -41,11 +43,16 @@ def dashboard(request):
         monthly.append({"month": m, "sales": s, "purchases": p, "diff": s - p})
     monthly.reverse()
 
+    balances = customers_with_balances().aggregate(total=Sum("balance"))
+    month_start = today.replace(day=1)
+
     return render(
         request,
         "core/dashboard.html",
         {
             "this_month": monthly[0],
+            "receivable_total": balances["total"] or 0,
+            "payments_this_month": Payment.objects.filter(date__gte=month_start, date__lte=today).aggregate(s=Sum("amount"))["s"] or 0,
             "monthly": monthly,
             "recent_sales": SalesSlip.objects.select_related("customer")[:5],
             "recent_purchases": PurchaseSlip.objects.select_related("supplier")[:5],

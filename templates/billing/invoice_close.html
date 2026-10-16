@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}請求の締め処理{% endblock %}
+{% block content %}
+<div class="page-head"><h1>請求の締め処理</h1></div>
+
+<form method="get" class="card">
+  <div class="filters">
+    {% for field in form %}
+      <label>{{ field.label }} {{ field }}</label>
+    {% endfor %}
+    <button type="submit" class="btn primary">対象を表示</button>
+  </div>
+  {% for field in form %}{% for e in field.errors %}<div class="error">{{ field.label }}: {{ e }}</div>{% endfor %}{% endfor %}
+  <p class="muted small">選んだ締日の得意先について、締日までのまだ請求していない売上と入金を集計します。請求日を空欄にすると締日を請求日にします。</p>
+</form>
+
+{% if drafts is not None %}
+<form method="post" class="card">
+  {% csrf_token %}
+  {% for field in form %}<input type="hidden" name="{{ field.html_name }}" value="{{ field.value|default_if_none:'' }}">{% endfor %}
+  <h2>請求書を作る得意先（{{ drafts|length }} 件）</h2>
+  {% if drafts %}
+  <div class="table-scroll">
+  <table class="list">
+    <thead><tr>
+      <th><input type="checkbox" checked onclick="document.querySelectorAll('input[name=customer]').forEach(c => c.checked = this.checked)"></th>
+      <th>得意先</th><th>締日</th><th class="num">前回請求額</th><th class="num">今回入金額</th><th class="num">繰越金額</th>
+      <th class="num">売上件数</th><th class="num">今回売上（税込）</th><th class="num">今回請求額</th><th>入金予定日</th>
+    </tr></thead>
+    <tbody>
+    {% for d in drafts %}
+      <tr>
+        <td><input type="checkbox" name="customer" value="{{ d.customer.pk }}" checked></td>
+        <td>{{ d.customer.code }} {{ d.customer.name }}</td>
+        <td>{{ d.closing_date|date:"Y/m/d" }}</td>
+        <td class="num">{{ d.previous_amount|intcomma }}</td>
+        <td class="num">{{ d.payment_amount|intcomma }}</td>
+        <td class="num">{{ d.carried_amount|intcomma }}</td>
+        <td class="num">{{ d.slips|length }}</td>
+        <td class="num">{{ d.sales_total|intcomma }}</td>
+        <td class="num"><strong>{{ d.billed_amount|intcomma }}</strong></td>
+        <td>{{ d.due_date|date:"Y/m/d" }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+    <tfoot><tr><th colspan="7">合計</th><th class="num">{{ totals.sales|intcomma }}</th><th class="num">{{ totals.billed|intcomma }}</th><th></th></tr></tfoot>
+  </table>
+  </div>
+  <div class="form-actions"><button type="submit" class="btn primary">チェックした得意先の請求書を作成</button></div>
+  {% else %}
+  <p class="muted">この締日で請求するもの（未請求の売上・入金・繰越残高）がある得意先はありません。</p>
+  {% endif %}
+  {% if skipped %}
+  <h2>締め済みのため対象外</h2>
+  <ul class="small">{% for c, reason in skipped %}<li>{{ c.name }}: {{ reason }}</li>{% endfor %}</ul>
+  {% endif %}
+</form>
+{% endif %}
+{% endblock %}

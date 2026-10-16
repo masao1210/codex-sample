@@ -8,7 +8,8 @@ PARTNER_SEARCH = ("code", "name", "kana")
 
 
 class CustomerList(MasterListView):
-    model, url_ns, columns, search_fields = Customer, "customers", PARTNER_COLUMNS, PARTNER_SEARCH
+    model, url_ns, search_fields = Customer, "customers", PARTNER_SEARCH
+    columns = PARTNER_COLUMNS + (("closing_day", "締日"),)
 
 
 class CustomerCreate(MasterCreateView):

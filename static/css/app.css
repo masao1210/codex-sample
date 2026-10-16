@@ -74,7 +74,10 @@ tr.inactive td { color: var(--muted); }
 .center { text-align: center; }
 .muted { color: var(--muted); }
 .small { font-size: 12px; }
-.badge { font-size: 11px; padding: 2px 6px; border-radius: 4px; background: #e5e7eb; color: var(--muted); }
+.badge { font-size: 11px; padding: 2px 6px; border-radius: 4px; background: #e5e7eb; color: var(--muted); white-space: nowrap; }
+.badge.ok { background: #e3f4e6; color: #1e6b34; }
+.badge.warn { background: #fdf3dc; color: #8a5a00; }
+.badge.ng { background: var(--error-bg); color: var(--danger); }
 
 .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px 20px; }
 .field label { display: block; font-weight: 600; margin-bottom: 4px; }
@@ -135,6 +138,12 @@ table.doc-summary { margin: 12px 0 0 auto; border-collapse: collapse; }
 table.doc-summary th, table.doc-summary td { border: 1px solid #555; padding: 4px 10px; }
 table.doc-summary th { background: #eee; font-weight: normal; }
 table.doc-summary tr.sum th, table.doc-summary tr.sum td { font-weight: 700; }
+table.doc-balance { margin-bottom: 8px; }
+table.doc-balance th { font-weight: normal; font-size: 12px; }
+table.doc-balance td.grand { font-size: 18px; font-weight: 700; }
+table.doc-lines + table.doc-lines, p + table.doc-lines { margin-top: 12px; }
+table.doc-lines tr.slip-sum td { background: #fafafa; font-size: 12px; }
+table.doc-payments { width: auto; }
 .doc-notes { margin-top: 20px; border: 1px solid #555; padding: 8px; }
 
 @media print {

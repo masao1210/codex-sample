@@ -13,6 +13,9 @@
     <nav>
       <a href="{% url 'sales:list' %}">売上</a>
       <a href="{% url 'purchases:list' %}">仕入</a>
+      <a href="{% url 'invoices:list' %}">請求</a>
+      <a href="{% url 'payments:list' %}">入金</a>
+      <a href="{% url 'receivables' %}">売掛残高</a>
       <span class="sep"></span>
       <a href="{% url 'customers:list' %}">得意先</a>
       <a href="{% url 'suppliers:list' %}">仕入先</a>

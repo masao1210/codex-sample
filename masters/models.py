@@ -1,3 +1,6 @@
+import calendar
+from datetime import date
+
 from django.db import models
 
 from core.tax import TaxRate
@@ -25,9 +28,32 @@ class PartnerBase(models.Model):
         return f"{self.code} {self.name}"
 
 
+END_OF_MONTH = 31
+DAY_CHOICES = [(d, f"{d}日") for d in range(1, 29)] + [(END_OF_MONTH, "末日")]
+
+
 class Customer(PartnerBase):
+    closing_day = models.PositiveSmallIntegerField("締日", choices=DAY_CHOICES, default=END_OF_MONTH)
+    collection_month = models.PositiveSmallIntegerField(
+        "回収月", choices=[(0, "当月"), (1, "翌月"), (2, "翌々月"), (3, "3か月後")], default=1
+    )
+    collection_day = models.PositiveSmallIntegerField("回収日", choices=DAY_CHOICES, default=END_OF_MONTH)
+
     class Meta(PartnerBase.Meta):
         verbose_name = verbose_name_plural = "得意先"
+
+    @property
+    def terms_display(self):
+        return f"{self.get_closing_day_display()}締め {self.get_collection_month_display()}{self.get_collection_day_display()}回収"
+
+    def closing_date_in(self, year, month):
+        """指定した年月の締日。"""
+        return day_in_month(year, month, self.closing_day)
+
+    def due_date_for(self, closing_date):
+        """締日に対する回収予定日。"""
+        y, m = divmod(closing_date.month - 1 + self.collection_month, 12)
+        return day_in_month(closing_date.year + y, m + 1, self.collection_day)
 
 
 class Supplier(PartnerBase):
@@ -53,3 +79,8 @@ class Product(models.Model):
 
     def __str__(self):
         return f"{self.code} {self.name}"
+
+
+def day_in_month(year, month, day):
+    """year 年 month 月の day 日。月の日数を超える日（末日=31 など）はその月の末日にする。"""
+    return date(year, month, min(day, calendar.monthrange(year, month)[1]))

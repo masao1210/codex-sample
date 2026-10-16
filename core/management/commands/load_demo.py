@@ -2,11 +2,14 @@
 
 import random
 from datetime import timedelta
+from decimal import Decimal
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.utils import timezone
 
+from billing.models import Payment
+from billing.services import create_invoice, drafts_for_closing, outstanding_amount
 from core.demo_data import SEED, dummy_customers, dummy_products
 from masters.models import Customer, Product, Supplier
 from purchases.models import PurchaseLine, PurchaseSlip
@@ -15,7 +18,7 @@ from sales.models import SalesLine, SalesSlip
 
 class Command(BaseCommand):
     help = (
-        "お試し用のサンプルデータ（得意先・商品は各100件、仕入先、伝票）を登録します。"
+        "お試し用のサンプルデータ（得意先・商品は各100件、仕入先、伝票、請求書、入金）を登録します。"
         "同じコードのマスタがすでにあればそのまま残し、伝票は1件もないときだけ作ります。"
     )
 
@@ -61,4 +64,26 @@ class Command(BaseCommand):
                                                 unit=p.unit, unit_price=p.purchase_price, tax_rate=p.tax_rate, line_no=n)
                 pslip.recalculate()
 
-        self.stdout.write(self.style.SUCCESS("サンプル伝票（売上24件・仕入12件）を作りました。"))
+        invoices, payments = self._create_invoices_and_payments(rng, today)
+        self.stdout.write(self.style.SUCCESS(
+            f"サンプル伝票（売上24件・仕入12件）、請求書 {invoices} 件、入金 {payments} 件を作りました。"
+        ))
+
+    def _create_invoices_and_payments(self, rng, today):
+        """過去6か月を月ごとに締め、入金予定日を過ぎた請求はおおむね入金済みにする。"""
+        invoices = payments = 0
+        closing_days = sorted(set(Customer.objects.values_list("closing_day", flat=True)))
+        for back in range(6, 0, -1):
+            y, m = divmod(today.year * 12 + today.month - 1 - back, 12)
+            for day in closing_days:
+                drafts, _ = drafts_for_closing(y, m + 1, day)
+                for draft in drafts:
+                    invoice = create_invoice(draft.customer, draft.closing_date)
+                    invoices += 1
+                    unpaid = outstanding_amount(invoice)
+                    if invoice.due_date < today and unpaid > 440 and rng.random() < 0.85:
+                        fee = Decimal(440) if rng.random() < 0.3 else Decimal(0)
+                        Payment.objects.create(customer=invoice.customer, date=invoice.due_date,
+                                               amount=unpaid - fee, fee=fee)
+                        payments += 1
+        return invoices, payments

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}請求書一覧{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>請求書一覧</h1>
+  <div class="actions"><a class="btn primary" href="{% url 'invoices:close' %}">請求の締め処理</a></div>
+</div>
+<form method="get" class="filters">
+  <label>締めた年月 <input type="month" name="month" value="{{ request.GET.month }}"></label>
+  <input type="search" name="customer" value="{{ request.GET.customer }}" placeholder="得意先名・コード">
+  <button type="submit" class="btn">検索</button>
+  <a href="?" class="btn-link">クリア</a>
+</form>
+<div class="table-scroll">
+<table class="list">
+  <thead><tr>
+    <th>請求書番号</th><th>締日</th><th>得意先</th>
+    <th class="num">前回請求額</th><th class="num">今回入金額</th><th class="num">繰越金額</th>
+    <th class="num">今回売上（税込）</th><th class="num">今回請求額</th><th>入金予定日</th><th>入金状況</th>
+  </tr></thead>
+  <tbody>
+  {% for r in rows %}{% with inv=r.invoice %}
+    <tr>
+      <td><a href="{{ inv.get_absolute_url }}">{{ inv.number }}</a></td>
+      <td>{{ inv.closing_date|date:"Y/m/d" }}</td>
+      <td>{{ inv.customer.name }}</td>
+      <td class="num">{{ inv.previous_amount|intcomma }}</td>
+      <td class="num">{{ inv.payment_amount|intcomma }}</td>
+      <td class="num">{{ inv.carried_amount|intcomma }}</td>
+      <td class="num">{{ inv.sales_total|intcomma }}</td>
+      <td class="num"><strong>{{ inv.billed_amount|intcomma }}</strong></td>
+      <td>{{ inv.due_date|date:"Y/m/d" }}</td>
+      <td>{% include "billing/status_badge.html" %}</td>
+    </tr>
+  {% endwith %}{% empty %}
+    <tr><td colspan="10" class="muted">請求書がありません。「請求の締め処理」から作成します。</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% include "core/pagination.html" %}
+<p class="muted small">入金状況は、各得意先の最新の請求書についてだけ表示します。それより前の請求書の残高は、次の請求書に繰り越されています。</p>
+{% endblock %}

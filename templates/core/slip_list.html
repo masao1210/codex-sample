@@ -18,7 +18,7 @@
   <tbody>
   {% for slip, partner in slips %}
     <tr>
-      <td><a href="{{ slip.get_absolute_url }}">{{ slip.number }}</a></td>
+      <td><a href="{{ slip.get_absolute_url }}">{{ slip.number }}</a>{% if slip.invoice_id %} <span class="badge">請求済</span>{% endif %}</td>
       <td>{{ slip.date|date:"Y/m/d" }}</td>
       <td>{{ partner.name }}</td>
       <td class="num">{{ slip.subtotal|intcomma }}</td>

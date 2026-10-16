@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "masters",
     "sales",
     "purchases",
+    "billing",
 ]
 
 MIDDLEWARE = [
@@ -135,6 +136,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # 帳票に表示する自社情報（環境変数で上書き可能）
 COMPANY_NAME = os.environ.get("HANBAI_COMPANY_NAME", "自社名（設定してください）")
 COMPANY_INVOICE_NUMBER = os.environ.get("HANBAI_INVOICE_NUMBER", "")
+# 請求書に出す振込先（例: "○○銀行 △△支店 普通 1234567 カ）ジシャ"）
+COMPANY_BANK_ACCOUNT = os.environ.get("HANBAI_BANK_ACCOUNT", "")
 
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "dashboard"

@@ -5,12 +5,17 @@
   <h1>{{ title }} {{ object.number }}</h1>
   <div class="actions">
     <button type="button" class="btn" onclick="window.print()">印刷 / PDF保存</button>
+    {% if not object.is_locked %}
     <a class="btn primary" href="{% url url_ns|add:':update' object.pk %}">編集</a>
     <a class="btn danger" href="{% url url_ns|add:':delete' object.pk %}">削除</a>
+    {% endif %}
     <a class="btn" href="{% url url_ns|add:':list' %}">一覧へ</a>
   </div>
 </div>
 
+{% if object.invoice %}
+<p class="no-print">請求済み: <a href="{{ object.invoice.get_absolute_url }}">請求書 {{ object.invoice.number }}</a>（{{ object.invoice.closing_date|date:"Y/m/d" }} 締め）。変更するには先に請求書を取り消してください。</p>
+{% endif %}
 <article class="document">
   <header class="doc-head">
     <h1 class="doc-title">{% block doc_title %}{% endblock %}</h1>

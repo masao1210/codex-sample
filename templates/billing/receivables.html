@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}売掛金残高{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>売掛金残高</h1>
+  <div class="actions"><a class="btn" href="{% url 'payments:create' %}">＋ 入金を登録</a></div>
+</div>
+<form method="get" class="filters">
+  <input type="search" name="q" value="{{ request.GET.q }}" placeholder="得意先名・コード">
+  <label class="check"><input type="checkbox" name="all" value="1" {% if request.GET.all %}checked{% endif %}> 残高ゼロも表示</label>
+  <button type="submit" class="btn">検索</button>
+</form>
+<div class="tiles">
+  <div class="tile"><div class="tile-label">売掛金残高 合計</div><div class="tile-value">¥{{ totals.balance|intcomma }}</div></div>
+  <div class="tile"><div class="tile-label">うち請求済み・未入金</div><div class="tile-value">¥{{ totals.billed_unpaid|intcomma }}</div></div>
+  <div class="tile"><div class="tile-label">うち未請求の売上</div><div class="tile-value">¥{{ totals.unbilled|intcomma }}</div></div>
+</div>
+<div class="table-scroll">
+<table class="list">
+  <thead><tr>
+    <th>コード</th><th>得意先</th><th>締日</th><th class="num">売掛金残高</th><th class="num">請求済み・未入金</th>
+    <th class="num">未請求の売上</th><th>最終請求</th><th>入金予定日</th><th></th>
+  </tr></thead>
+  <tbody>
+  {% for c in rows %}
+    <tr>
+      <td>{{ c.code }}</td>
+      <td>{{ c.name }}</td>
+      <td>{{ c.get_closing_day_display }}</td>
+      <td class="num"><strong>{{ c.balance|intcomma }}</strong></td>
+      <td class="num">{{ c.billed_unpaid|intcomma }}</td>
+      <td class="num">{{ c.unbilled_sum|intcomma }}</td>
+      <td>{% if c.last_invoice_id %}<a href="{% url 'invoices:detail' c.last_invoice_id %}">{{ c.last_closing|date:"Y/m/d" }} 締め</a>{% else %}<span class="muted">なし</span>{% endif %}</td>
+      <td>{% if c.last_due %}{{ c.last_due|date:"Y/m/d" }}{% if c.overdue %} <span class="badge ng">期日超過</span>{% endif %}{% endif %}</td>
+      <td><a href="{% url 'payments:create' %}?customer={{ c.pk }}">入金</a></td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="9" class="muted">売掛金の残っている得意先はありません。</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+<p class="muted small">売掛金残高 = 売上の合計 − 入金（手数料・値引を含む）の合計。マイナスは入金が多すぎる（前受け）状態です。</p>
+{% endblock %}

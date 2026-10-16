@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}請求の取り消し{% endblock %}
+{% block content %}
+<div class="card narrow">
+  <h1>請求の取り消し</h1>
+  {% if is_latest %}
+  <p>請求書 {{ object.number }}（{{ object.customer.name }}、{{ object.closing_date|date:"Y/m/d" }} 締め、¥{{ object.billed_amount|intcomma }}）を取り消します。</p>
+  <p>この請求書に入っていた売上伝票と入金は「未請求」に戻り、編集できるようになります。</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn danger">取り消す</button>
+    <a class="btn" href="{{ object.get_absolute_url }}">やめる</a>
+  </form>
+  {% else %}
+  <p class="error">この得意先には後の請求書があるため取り消せません。新しい請求書から順に取り消してください。</p>
+  <a class="btn" href="{{ object.get_absolute_url }}">戻る</a>
+  {% endif %}
+</div>
+{% endblock %}

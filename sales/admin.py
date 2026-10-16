@@ -15,6 +15,12 @@ class SlipAdmin(admin.ModelAdmin):
     inlines = [LineInline]
     readonly_fields = ("subtotal", "tax", "total")
 
+    def has_change_permission(self, request, obj=None):
+        return obj is None or not obj.is_locked
+
+    def has_delete_permission(self, request, obj=None):
+        return obj is None or not obj.is_locked
+
     def save_related(self, request, form, formsets, change):
         super().save_related(request, form, formsets, change)
         form.instance.recalculate()

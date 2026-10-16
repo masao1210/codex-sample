@@ -115,6 +115,9 @@ def dummy_customers(n=100):
             "address": f"{pref}{city}{rng.randint(1, 5)}-{rng.randint(1, 20)}-{rng.randint(1, 30)}",
             "phone": f"{area_code}-0000-{no:04d}",
             "email": f"info{no:03d}@{romaji}.example.com",
+            "closing_day": rng.choice([31, 31, 31, 31, 20, 25, 15]),
+            "collection_month": rng.choice([1, 1, 1, 2]),
+            "collection_day": rng.choice([31, 31, 10, 25]),
         })
     return rows
 

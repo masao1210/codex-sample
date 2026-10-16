@@ -9,7 +9,7 @@ TEXTAREA = {"notes": forms.Textarea(attrs={"rows": 3})}
 class CustomerForm(forms.ModelForm):
     class Meta:
         model = Customer
-        fields = PARTNER_FIELDS
+        fields = PARTNER_FIELDS[:-2] + ["closing_day", "collection_month", "collection_day", "notes", "is_active"]
         widgets = TEXTAREA
 
 

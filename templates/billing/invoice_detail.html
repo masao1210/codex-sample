@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}請求書 {{ object.number }}{% endblock %}
+{% block content %}
+<div class="page-head no-print">
+  <h1>請求書 {{ object.number }}</h1>
+  <div class="actions">
+    <button type="button" class="btn" onclick="window.print()">印刷 / PDF保存</button>
+    {% if is_latest %}
+      <a class="btn" href="{% url 'payments:create' %}?customer={{ object.customer_id }}">入金を登録</a>
+      <a class="btn danger" href="{% url 'invoices:cancel' object.pk %}">請求を取り消す</a>
+    {% endif %}
+    <a class="btn" href="{% url 'invoices:list' %}">一覧へ</a>
+  </div>
+</div>
+{% if is_latest %}
+<p class="no-print">
+  入金状況:
+  {% if outstanding <= 0 %}<span class="badge ok">入金済</span>
+  {% else %}<span class="badge warn">未入金 ¥{{ outstanding|intcomma }}</span>（入金予定日 {{ object.due_date|date:"Y/m/d" }}）{% endif %}
+</p>
+{% endif %}
+
+<article class="document">
+  <header class="doc-head">
+    <h1 class="doc-title">請求書</h1>
+    <div class="doc-meta">
+      <div>請求書番号: {{ object.number }}</div>
+      <div>請求日: {{ object.issue_date|date:"Y年n月j日" }}</div>
+      <div>{% if object.period_start %}対象期間: {{ object.period_start|date:"Y/m/d" }}〜{{ object.closing_date|date:"Y/m/d" }}{% else %}締日: {{ object.closing_date|date:"Y/m/d" }}{% endif %}</div>
+    </div>
+  </header>
+
+  <div class="doc-parties">
+    <div class="doc-to">
+      {% with c=object.customer %}
+      {% if c.postal_code %}<div>〒{{ c.postal_code }}</div>{% endif %}
+      {% if c.address %}<div>{{ c.address }}</div>{% endif %}
+      <div class="partner-name">{{ c.name }} {{ c.honorific }}</div>
+      {% endwith %}
+      <p>下記のとおりご請求申し上げます。</p>
+    </div>
+    <div class="doc-from">
+      <div class="company">{{ COMPANY_NAME }}</div>
+      {% if COMPANY_INVOICE_NUMBER %}<div>登録番号: {{ COMPANY_INVOICE_NUMBER }}</div>{% endif %}
+    </div>
+  </div>
+
+  <table class="doc-lines doc-balance">
+    <thead><tr><th>前回御請求額</th><th>今回御入金額</th><th>繰越金額</th><th>今回御買上額（税抜）</th><th>消費税額</th><th>今回御請求額</th></tr></thead>
+    <tbody><tr>
+      <td class="num">{{ object.previous_amount|intcomma }}</td>
+      <td class="num">{{ object.payment_amount|intcomma }}</td>
+      <td class="num">{{ object.carried_amount|intcomma }}</td>
+      <td class="num">{{ object.sales_subtotal|intcomma }}</td>
+      <td class="num">{{ object.sales_tax|intcomma }}</td>
+      <td class="num grand">¥{{ object.billed_amount|intcomma }}</td>
+    </tr></tbody>
+  </table>
+  <p>お支払期限: {{ object.due_date|date:"Y年n月j日" }}{% if COMPANY_BANK_ACCOUNT %}　お振込先: {{ COMPANY_BANK_ACCOUNT }}{% endif %}</p>
+
+  {% if slips %}
+  <table class="doc-lines">
+    <thead><tr><th>日付</th><th>伝票番号</th><th>品名</th><th class="num">数量</th><th>単位</th><th class="num">単価</th><th class="num">金額</th><th>税率</th></tr></thead>
+    <tbody>
+    {% for s in slips %}
+      {% for l in s.lines.all %}
+      <tr>
+        <td>{% if forloop.first %}{{ s.date|date:"m/d" }}{% endif %}</td>
+        <td>{% if forloop.first %}{{ s.number }}{% endif %}</td>
+        <td>{{ l.description }}{% if l.tax_rate == 8 %} ※{% endif %}</td>
+        <td class="num">{{ l.quantity|floatformat:"-2"|intcomma }}</td>
+        <td>{{ l.unit }}</td>
+        <td class="num">{{ l.unit_price|floatformat:"-2"|intcomma }}</td>
+        <td class="num">{{ l.amount|intcomma }}</td>
+        <td>{{ l.get_tax_rate_display }}</td>
+      </tr>
+      {% endfor %}
+      <tr class="slip-sum"><td></td><td></td><td>（伝票計）消費税 {{ s.tax|intcomma }}</td><td colspan="3"></td><td class="num">{{ s.total|intcomma }}</td><td></td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  {% if payments %}
+  <table class="doc-lines doc-payments">
+    <thead><tr><th>入金日</th><th>入金方法</th><th class="num">入金額</th><th class="num">手数料・値引</th></tr></thead>
+    <tbody>
+    {% for p in payments %}
+      <tr><td>{{ p.date|date:"Y/m/d" }}</td><td>{{ p.get_method_display }}</td><td class="num">{{ p.amount|intcomma }}</td><td class="num">{{ p.fee|intcomma }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  {% if tax_breakdown %}
+  <table class="doc-summary">
+    {% for r in tax_breakdown %}
+    <tr><th>{% if r.rate %}{{ r.rate }}%対象{% else %}非課税{% endif %}</th><td class="num">¥{{ r.subtotal|intcomma }}</td><th>消費税</th><td class="num">¥{{ r.tax|intcomma }}</td></tr>
+    {% endfor %}
+    <tr class="sum"><th>税抜合計</th><td class="num">¥{{ object.sales_subtotal|intcomma }}</td><th>消費税合計</th><td class="num">¥{{ object.sales_tax|intcomma }}</td></tr>
+  </table>
+  {% for r in tax_breakdown %}{% if r.rate == 8 %}<p class="small">※は軽減税率（8%）対象です。</p>{% endif %}{% endfor %}
+  {% endif %}
+</article>
+{% endblock %}

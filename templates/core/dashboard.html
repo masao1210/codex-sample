@@ -7,6 +7,8 @@
   <div class="actions">
     <a class="btn primary" href="{% url 'sales:create' %}">＋ 売上を入力</a>
     <a class="btn" href="{% url 'purchases:create' %}">＋ 仕入を入力</a>
+    <a class="btn" href="{% url 'payments:create' %}">＋ 入金を登録</a>
+    <a class="btn" href="{% url 'invoices:close' %}">請求の締め処理</a>
   </div>
 </div>
 
@@ -14,6 +16,8 @@
   <div class="tile"><div class="tile-label">今月の売上（税抜）</div><div class="tile-value">¥{{ this_month.sales|floatformat:0|intcomma }}</div></div>
   <div class="tile"><div class="tile-label">今月の仕入（税抜）</div><div class="tile-value">¥{{ this_month.purchases|floatformat:0|intcomma }}</div></div>
   <div class="tile"><div class="tile-label">売上 − 仕入</div><div class="tile-value">¥{{ this_month.diff|floatformat:0|intcomma }}</div></div>
+  <div class="tile"><div class="tile-label">今月の入金</div><div class="tile-value">¥{{ payments_this_month|floatformat:0|intcomma }}</div></div>
+  <div class="tile"><a class="tile-label" href="{% url 'receivables' %}">売掛金残高 →</a><div class="tile-value">¥{{ receivable_total|floatformat:0|intcomma }}</div></div>
 </div>
 
 <div class="grid2">

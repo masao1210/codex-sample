@@ -8,23 +8,15 @@ from django.utils import timezone
 from core import tax
 
 
-class SlipBase(models.Model):
-    """伝票ヘッダの共通部分。子クラスは NUMBER_PREFIX と lines（明細の related_name）を持つ。"""
+class NumberedModel(models.Model):
+    """「S000001」のような連番を自動で振るモデル。子クラスは NUMBER_PREFIX を指定する。"""
 
     NUMBER_PREFIX = ""
 
-    number = models.CharField("伝票番号", max_length=20, unique=True, editable=False)
-    date = models.DateField("日付", default=timezone.localdate)
-    notes = models.TextField("備考", blank=True)
-    subtotal = models.DecimalField("税抜金額", max_digits=14, decimal_places=0, default=0, editable=False)
-    tax = models.DecimalField("消費税", max_digits=14, decimal_places=0, default=0, editable=False)
-    total = models.DecimalField("合計金額", max_digits=14, decimal_places=0, default=0, editable=False)
-    created_at = models.DateTimeField("作成日時", auto_now_add=True)
-    updated_at = models.DateTimeField("更新日時", auto_now=True)
+    number = models.CharField("番号", max_length=20, unique=True, editable=False)
 
     class Meta:
         abstract = True
-        ordering = ["-date", "-number"]
 
     def __str__(self):
         return self.number
@@ -44,6 +36,23 @@ class SlipBase(models.Model):
         if not self.number:
             self.number = self.next_number()
         super().save(*args, **kwargs)
+
+
+class SlipBase(NumberedModel):
+    """伝票ヘッダの共通部分。子クラスは NUMBER_PREFIX と lines（明細の related_name）を持つ。"""
+
+    number = models.CharField("伝票番号", max_length=20, unique=True, editable=False)
+    date = models.DateField("日付", default=timezone.localdate)
+    notes = models.TextField("備考", blank=True)
+    subtotal = models.DecimalField("税抜金額", max_digits=14, decimal_places=0, default=0, editable=False)
+    tax = models.DecimalField("消費税", max_digits=14, decimal_places=0, default=0, editable=False)
+    total = models.DecimalField("合計金額", max_digits=14, decimal_places=0, default=0, editable=False)
+    created_at = models.DateTimeField("作成日時", auto_now_add=True)
+    updated_at = models.DateTimeField("更新日時", auto_now=True)
+
+    class Meta:
+        abstract = True
+        ordering = ["-date", "-number"]
 
     def tax_summary(self):
         return tax.summarize((line.tax_rate, line.amount) for line in self.lines.all())

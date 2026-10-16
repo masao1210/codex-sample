@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}入金{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>{% if object %}入金 {{ object.number }} の編集{% else %}入金の登録{% endif %}</h1>
+</div>
+<form method="post" class="card form-grid">
+  {% csrf_token %}
+  {% for e in form.non_field_errors %}<div class="error wide">{{ e }}</div>{% endfor %}
+  {% for field in form %}
+    <div class="field{% if field.errors %} has-error{% endif %}">
+      <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span class="req">*</span>{% endif %}</label>
+      {{ field }}
+      {% if field.name == "customer" %}<div class="muted small" id="balance-info"></div>{% endif %}
+      {% if field.help_text %}<div class="muted small">{{ field.help_text }}</div>{% endif %}
+      {% for e in field.errors %}<div class="error">{{ e }}</div>{% endfor %}
+    </div>
+  {% endfor %}
+  <div class="form-actions">
+    <button type="submit" class="btn primary">保存</button>
+    <a class="btn" href="{% url 'payments:list' %}">一覧に戻る</a>
+    {% if object %}<a class="btn danger right" href="{% url 'payments:delete' object.pk %}">削除</a>{% endif %}
+  </div>
+</form>
+{{ balances|json_script:"balance-data" }}
+{% endblock %}
+{% block scripts %}
+<script>
+  // 得意先を選ぶと、現在の売掛金残高を表示する
+  (function () {
+    const balances = JSON.parse(document.getElementById("balance-data").textContent);
+    const select = document.querySelector('[name="customer"]');
+    const info = document.getElementById("balance-info");
+    function show() {
+      const b = balances[select.value];
+      info.textContent = b === undefined ? "" : `現在の売掛金残高: ¥${Number(b).toLocaleString("ja-JP")}`;
+    }
+    select.addEventListener("change", show);
+    show();
+  })();
+</script>
+{% endblock %}

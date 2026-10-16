@@ -15,6 +15,19 @@ from django.views import generic
 from masters.models import Product
 
 
+class LockedObjectMixin:
+    """is_locked が真のオブジェクト（請求済みの伝票・入金など）は編集・削除させない。"""
+
+    locked_message = "請求済みのため変更できません。変更するには、先に請求書を取り消してください。"
+
+    def dispatch(self, request, *args, **kwargs):
+        obj = self.get_object()
+        if getattr(obj, "is_locked", False):
+            messages.error(request, self.locked_message)
+            return redirect(obj.get_absolute_url())
+        return super().dispatch(request, *args, **kwargs)
+
+
 class SlipMixin:
     url_ns = ""
     partner_field = ""
@@ -88,7 +101,7 @@ class SlipCreateView(SlipFormMixin, generic.CreateView):
     pass
 
 
-class SlipUpdateView(SlipFormMixin, generic.UpdateView):
+class SlipUpdateView(LockedObjectMixin, SlipFormMixin, generic.UpdateView):
     pass
 
 
@@ -101,7 +114,7 @@ class SlipDetailView(SlipMixin, generic.DetailView):
         return ctx
 
 
-class SlipDeleteView(SlipMixin, generic.DeleteView):
+class SlipDeleteView(LockedObjectMixin, SlipMixin, generic.DeleteView):
     template_name = "core/confirm_delete.html"
 
     def get_success_url(self):
