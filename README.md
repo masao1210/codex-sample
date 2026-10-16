@@ -23,6 +23,15 @@
 
 ## 動かし方
 
+### Windows でかんたんに起動する
+
+フォルダの中の **`start.bat` をダブルクリック** すると起動し、ブラウザが開きます。
+初回は、必要なソフトの導入・データベースの作成・ログイン用ユーザーの作成・ダミーデータの登録まで自動で進みます。
+（事前に Python 3.10 以上を入れておいてください。インストール時に「Add python.exe to PATH」にチェックを入れます。）
+終わるときは、黒い画面で Ctrl+C を押してから閉じます。
+
+### コマンドで起動する
+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate          # Windows は .venv\Scripts\activate
