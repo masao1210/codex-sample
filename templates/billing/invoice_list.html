@@ -3,13 +3,13 @@
 {% block title %}請求書一覧{% endblock %}
 {% block content %}
 <div class="page-head">
-  <h1>請求書一覧</h1>
-  <div class="actions"><a class="btn primary" href="{% url 'invoices:close' %}">請求の締め処理</a></div>
+  <div><h1>請求書一覧</h1><p class="lead">締め処理で作った請求書です。最新の請求書ごとに入金の状況を表示します。</p></div>
+  <div class="actions"><a class="btn primary" href="{% url 'invoices:close' %}">{% icon "closing" %}請求の締め処理</a></div>
 </div>
 <form method="get" class="filters">
   <label>締めた年月 <input type="month" name="month" value="{{ request.GET.month }}"></label>
   <input type="search" name="customer" value="{{ request.GET.customer }}" placeholder="得意先名・コード">
-  <button type="submit" class="btn">検索</button>
+  <button type="submit" class="btn">{% icon "search" %}検索</button>
   <a href="?" class="btn-link">クリア</a>
 </form>
 <div class="table-scroll">
@@ -34,7 +34,7 @@
       <td>{% include "billing/status_badge.html" %}</td>
     </tr>
   {% endwith %}{% empty %}
-    <tr><td colspan="10" class="muted">請求書がありません。「請求の締め処理」から作成します。</td></tr>
+    <tr><td colspan="10" class="empty">請求書がありません。「請求の締め処理」から作成します。</td></tr>
   {% endfor %}
   </tbody>
 </table>

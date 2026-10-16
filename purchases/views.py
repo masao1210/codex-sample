@@ -19,6 +19,7 @@ class Config:
     model = PurchaseSlip
     url_ns = "purchases"
     partner_field = "supplier"
+    lead = "仕入先から仕入れた商品を記録します。"
 
 
 class FormConfig(Config):

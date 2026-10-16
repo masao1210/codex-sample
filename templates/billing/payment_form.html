@@ -11,15 +11,15 @@
     <div class="field{% if field.errors %} has-error{% endif %}">
       <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span class="req">*</span>{% endif %}</label>
       {{ field }}
-      {% if field.name == "customer" %}<div class="muted small" id="balance-info"></div>{% endif %}
+      {% if field.name == "customer" %}<div class="badge info" id="balance-info" style="margin-top: 6px"></div>{% endif %}
       {% if field.help_text %}<div class="muted small">{{ field.help_text }}</div>{% endif %}
       {% for e in field.errors %}<div class="error">{{ e }}</div>{% endfor %}
     </div>
   {% endfor %}
   <div class="form-actions">
     <button type="submit" class="btn primary">保存</button>
-    <a class="btn" href="{% url 'payments:list' %}">一覧に戻る</a>
-    {% if object %}<a class="btn danger right" href="{% url 'payments:delete' object.pk %}">削除</a>{% endif %}
+    <a class="btn" href="{% url 'payments:list' %}">{% icon "back" %}一覧に戻る</a>
+    {% if object %}<a class="btn danger right" href="{% url 'payments:delete' object.pk %}">{% icon "trash" %}削除</a>{% endif %}
   </div>
 </form>
 {{ balances|json_script:"balance-data" }}
@@ -34,6 +34,7 @@
     function show() {
       const b = balances[select.value];
       info.textContent = b === undefined ? "" : `現在の売掛金残高: ¥${Number(b).toLocaleString("ja-JP")}`;
+      info.hidden = b === undefined;
     }
     select.addEventListener("change", show);
     show();

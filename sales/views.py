@@ -19,6 +19,7 @@ class Config:
     model = SalesSlip
     url_ns = "sales"
     partner_field = "customer"
+    lead = "得意先への売上（納品）を記録します。保存すると納品書を印刷できます。"
 
 
 class FormConfig(Config):

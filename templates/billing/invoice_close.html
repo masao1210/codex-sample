@@ -2,14 +2,16 @@
 {% load humanize %}
 {% block title %}請求の締め処理{% endblock %}
 {% block content %}
-<div class="page-head"><h1>請求の締め処理</h1></div>
+<div class="page-head">
+  <div><h1>請求の締め処理</h1><p class="lead">締日ごとに、まだ請求していない売上と入金をまとめて請求書を作ります。</p></div>
+</div>
 
 <form method="get" class="card">
   <div class="filters">
     {% for field in form %}
       <label>{{ field.label }} {{ field }}</label>
     {% endfor %}
-    <button type="submit" class="btn primary">対象を表示</button>
+    <button type="submit" class="btn primary">{% icon "search" %}対象を表示</button>
   </div>
   {% for field in form %}{% for e in field.errors %}<div class="error">{{ field.label }}: {{ e }}</div>{% endfor %}{% endfor %}
   <p class="muted small">選んだ締日の得意先について、締日までのまだ請求していない売上と入金を集計します。請求日を空欄にすると締日を請求日にします。</p>
@@ -47,7 +49,7 @@
     <tfoot><tr><th colspan="7">合計</th><th class="num">{{ totals.sales|intcomma }}</th><th class="num">{{ totals.billed|intcomma }}</th><th></th></tr></tfoot>
   </table>
   </div>
-  <div class="form-actions"><button type="submit" class="btn primary">チェックした得意先の請求書を作成</button></div>
+  <div class="form-actions" style="margin-top: 16px"><button type="submit" class="btn primary">{% icon "invoice" %}チェックした得意先の請求書を作成</button></div>
   {% else %}
   <p class="muted">この締日で請求するもの（未請求の売上・入金・繰越残高）がある得意先はありません。</p>
   {% endif %}

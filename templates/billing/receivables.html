@@ -3,18 +3,18 @@
 {% block title %}売掛金残高{% endblock %}
 {% block content %}
 <div class="page-head">
-  <h1>売掛金残高</h1>
-  <div class="actions"><a class="btn" href="{% url 'payments:create' %}">＋ 入金を登録</a></div>
+  <div><h1>売掛金残高</h1><p class="lead">得意先ごとに、まだ入金されていない金額です。</p></div>
+  <div class="actions"><a class="btn primary" href="{% url 'payments:create' %}">{% icon "plus" %}入金を登録</a></div>
 </div>
 <form method="get" class="filters">
   <input type="search" name="q" value="{{ request.GET.q }}" placeholder="得意先名・コード">
   <label class="check"><input type="checkbox" name="all" value="1" {% if request.GET.all %}checked{% endif %}> 残高ゼロも表示</label>
-  <button type="submit" class="btn">検索</button>
+  <button type="submit" class="btn">{% icon "search" %}検索</button>
 </form>
 <div class="tiles">
-  <div class="tile"><div class="tile-label">売掛金残高 合計</div><div class="tile-value">¥{{ totals.balance|intcomma }}</div></div>
-  <div class="tile"><div class="tile-label">うち請求済み・未入金</div><div class="tile-value">¥{{ totals.billed_unpaid|intcomma }}</div></div>
-  <div class="tile"><div class="tile-label">うち未請求の売上</div><div class="tile-value">¥{{ totals.unbilled|intcomma }}</div></div>
+  <div class="tile c-amber"><div class="tile-label">売掛金残高 合計</div><div class="tile-value">{{ totals.balance|yen }}</div></div>
+  <div class="tile c-violet"><div class="tile-label">うち請求済み・未入金</div><div class="tile-value">{{ totals.billed_unpaid|yen }}</div></div>
+  <div class="tile c-blue"><div class="tile-label">うち未請求の売上</div><div class="tile-value">{{ totals.unbilled|yen }}</div></div>
 </div>
 <div class="table-scroll">
 <table class="list">
@@ -36,7 +36,7 @@
       <td><a href="{% url 'payments:create' %}?customer={{ c.pk }}">入金</a></td>
     </tr>
   {% empty %}
-    <tr><td colspan="9" class="muted">売掛金の残っている得意先はありません。</td></tr>
+    <tr><td colspan="9" class="empty">売掛金の残っている得意先はありません。</td></tr>
   {% endfor %}
   </tbody>
 </table>

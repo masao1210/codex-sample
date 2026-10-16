@@ -41,6 +41,10 @@ def dashboard(request):
     for m in months:
         s, p = sales.get(m) or 0, purchases.get(m) or 0
         monthly.append({"month": m, "sales": s, "purchases": p, "diff": s - p})
+    peak = max([max(r["sales"], r["purchases"]) for r in monthly] + [1])
+    for r in monthly:
+        r["sales_pct"] = round(r["sales"] * 100 / peak)
+        r["purchases_pct"] = round(r["purchases"] * 100 / peak)
     monthly.reverse()
 
     balances = customers_with_balances().aggregate(total=Sum("balance"))

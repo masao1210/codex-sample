@@ -17,6 +17,7 @@ class MasterMixin:
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["title"] = self.model._meta.verbose_name
+        ctx["lead"] = getattr(self, "lead", "")
         ctx["url_ns"] = self.url_ns
         return ctx
 

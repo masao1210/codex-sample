@@ -67,6 +67,7 @@ TEMPLATES = [
         "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
+            "builtins": ["core.templatetags.ui"],
             "context_processors": [
                 "django.template.context_processors.request",
                 "core.context_processors.company",

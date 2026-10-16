@@ -9,6 +9,7 @@ PARTNER_SEARCH = ("code", "name", "kana")
 
 class CustomerList(MasterListView):
     model, url_ns, search_fields = Customer, "customers", PARTNER_SEARCH
+    lead = "売上の相手先です。締日と回収条件は請求書の作成に使います。"
     columns = PARTNER_COLUMNS + (("closing_day", "締日"),)
 
 
@@ -26,6 +27,7 @@ class CustomerDelete(MasterDeleteView):
 
 class SupplierList(MasterListView):
     model, url_ns, columns, search_fields = Supplier, "suppliers", PARTNER_COLUMNS, PARTNER_SEARCH
+    lead = "仕入の相手先です。"
 
 
 class SupplierCreate(MasterCreateView):
@@ -42,6 +44,7 @@ class SupplierDelete(MasterDeleteView):
 
 class ProductList(MasterListView):
     model, url_ns = Product, "products"
+    lead = "伝票で選ぶ商品です。売価・仕入単価・税率は伝票の入力時に自動で入ります。"
     columns = (
         ("code", "コード"),
         ("name", "商品名"),

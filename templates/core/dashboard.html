@@ -3,50 +3,65 @@
 {% block title %}ホーム{% endblock %}
 {% block content %}
 <div class="page-head">
-  <h1>ホーム</h1>
-  <div class="actions">
-    <a class="btn primary" href="{% url 'sales:create' %}">＋ 売上を入力</a>
-    <a class="btn" href="{% url 'purchases:create' %}">＋ 仕入を入力</a>
-    <a class="btn" href="{% url 'payments:create' %}">＋ 入金を登録</a>
-    <a class="btn" href="{% url 'invoices:close' %}">請求の締め処理</a>
+  <div>
+    <h1>ホーム</h1>
+    <p class="lead">{% now "Y年n月j日" %}　今月の状況と、よく使う操作です。</p>
   </div>
 </div>
 
+<div class="quick">
+  <a href="{% url 'sales:create' %}"><span class="q-icon bg-blue">{% icon "sales" %}</span><span>売上を入力<small>納品書を作る</small></span></a>
+  <a href="{% url 'purchases:create' %}"><span class="q-icon bg-teal">{% icon "purchases" %}</span><span>仕入を入力<small>仕入伝票を作る</small></span></a>
+  <a href="{% url 'payments:create' %}"><span class="q-icon bg-green">{% icon "payments" %}</span><span>入金を登録<small>売掛金を減らす</small></span></a>
+  <a href="{% url 'invoices:close' %}"><span class="q-icon bg-violet">{% icon "closing" %}</span><span>請求の締め処理<small>請求書をまとめて作る</small></span></a>
+</div>
+
 <div class="tiles">
-  <div class="tile"><div class="tile-label">今月の売上（税抜）</div><div class="tile-value">¥{{ this_month.sales|floatformat:0|intcomma }}</div></div>
-  <div class="tile"><div class="tile-label">今月の仕入（税抜）</div><div class="tile-value">¥{{ this_month.purchases|floatformat:0|intcomma }}</div></div>
-  <div class="tile"><div class="tile-label">売上 − 仕入</div><div class="tile-value">¥{{ this_month.diff|floatformat:0|intcomma }}</div></div>
-  <div class="tile"><div class="tile-label">今月の入金</div><div class="tile-value">¥{{ payments_this_month|floatformat:0|intcomma }}</div></div>
-  <div class="tile"><a class="tile-label" href="{% url 'receivables' %}">売掛金残高 →</a><div class="tile-value">¥{{ receivable_total|floatformat:0|intcomma }}</div></div>
+  <div class="tile c-blue"><div class="tile-label">今月の売上（税抜）</div><div class="tile-value">{{ this_month.sales|yen }}</div></div>
+  <div class="tile c-teal"><div class="tile-label">今月の仕入（税抜）</div><div class="tile-value">{{ this_month.purchases|yen }}</div></div>
+  <div class="tile c-violet"><div class="tile-label">売上 − 仕入</div><div class="tile-value{% if this_month.diff < 0 %} neg{% endif %}">{{ this_month.diff|yen }}</div></div>
+  <div class="tile c-green"><div class="tile-label">今月の入金</div><div class="tile-value">{{ payments_this_month|yen }}</div></div>
+  <div class="tile c-amber"><a class="tile-label" href="{% url 'receivables' %}">売掛金残高 {% icon "arrow" %}</a><div class="tile-value">{{ receivable_total|yen }}</div></div>
 </div>
 
 <div class="grid2">
   <section class="card">
-    <h2>月別推移（税抜）</h2>
+    <div class="card-head">
+      <h2>月別の売上と仕入（税抜）</h2>
+      <div class="legend"><span class="s">売上</span><span class="p">仕入</span></div>
+    </div>
+    <div class="table-scroll">
     <table class="list">
-      <thead><tr><th>月</th><th class="num">売上</th><th class="num">仕入</th><th class="num">差額</th></tr></thead>
+      <thead><tr><th>月</th><th></th><th class="num">売上</th><th class="num">仕入</th><th class="num">差額</th></tr></thead>
       <tbody>
       {% for r in monthly %}
-        <tr><td>{{ r.month|date:"Y年n月" }}</td><td class="num">{{ r.sales|floatformat:0|intcomma }}</td><td class="num">{{ r.purchases|floatformat:0|intcomma }}</td><td class="num">{{ r.diff|floatformat:0|intcomma }}</td></tr>
+        <tr>
+          <td>{{ r.month|date:"Y年n月" }}</td>
+          <td class="bars"><div class="bar s" style="width: {{ r.sales_pct }}%"></div><div class="bar p" style="width: {{ r.purchases_pct }}%"></div></td>
+          <td class="num">{{ r.sales|floatformat:0|intcomma }}</td>
+          <td class="num">{{ r.purchases|floatformat:0|intcomma }}</td>
+          <td class="num{% if r.diff < 0 %} neg{% endif %}">{{ r.diff|floatformat:0|intcomma }}</td>
+        </tr>
       {% endfor %}
       </tbody>
     </table>
+    </div>
   </section>
   <div>
     <section class="card">
-      <h2>最近の売上</h2>
+      <div class="card-head"><h2>最近の売上</h2><a href="{% url 'sales:list' %}" class="small">すべて見る</a></div>
       <table class="list">
         {% for s in recent_sales %}
-        <tr><td><a href="{{ s.get_absolute_url }}">{{ s.number }}</a></td><td>{{ s.date|date:"Y/m/d" }}</td><td>{{ s.customer.name }}</td><td class="num">{{ s.total|intcomma }}</td></tr>
-        {% empty %}<tr><td class="muted">まだありません</td></tr>{% endfor %}
+        <tr><td><a href="{{ s.get_absolute_url }}">{{ s.number }}</a><div class="small muted">{{ s.date|date:"Y/m/d" }}</div></td><td>{{ s.customer.name }}</td><td class="num">{{ s.total|yen }}</td></tr>
+        {% empty %}<tr><td class="empty">まだありません</td></tr>{% endfor %}
       </table>
     </section>
     <section class="card">
-      <h2>最近の仕入</h2>
+      <div class="card-head"><h2>最近の仕入</h2><a href="{% url 'purchases:list' %}" class="small">すべて見る</a></div>
       <table class="list">
         {% for s in recent_purchases %}
-        <tr><td><a href="{{ s.get_absolute_url }}">{{ s.number }}</a></td><td>{{ s.date|date:"Y/m/d" }}</td><td>{{ s.supplier.name }}</td><td class="num">{{ s.total|intcomma }}</td></tr>
-        {% empty %}<tr><td class="muted">まだありません</td></tr>{% endfor %}
+        <tr><td><a href="{{ s.get_absolute_url }}">{{ s.number }}</a><div class="small muted">{{ s.date|date:"Y/m/d" }}</div></td><td>{{ s.supplier.name }}</td><td class="num">{{ s.total|yen }}</td></tr>
+        {% empty %}<tr><td class="empty">まだありません</td></tr>{% endfor %}
       </table>
     </section>
   </div>

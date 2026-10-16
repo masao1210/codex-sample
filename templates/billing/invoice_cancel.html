@@ -5,7 +5,7 @@
 <div class="card narrow">
   <h1>請求の取り消し</h1>
   {% if is_latest %}
-  <p>請求書 {{ object.number }}（{{ object.customer.name }}、{{ object.closing_date|date:"Y/m/d" }} 締め、¥{{ object.billed_amount|intcomma }}）を取り消します。</p>
+  <p>請求書 {{ object.number }}（{{ object.customer.name }}、{{ object.closing_date|date:"Y/m/d" }} 締め、{{ object.billed_amount|yen }}）を取り消します。</p>
   <p>この請求書に入っていた売上伝票と入金は「未請求」に戻り、編集できるようになります。</p>
   <form method="post">
     {% csrf_token %}

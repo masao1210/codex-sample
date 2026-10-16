@@ -15,8 +15,8 @@
   {% endfor %}
   <div class="form-actions">
     <button type="submit" class="btn primary">保存</button>
-    <a class="btn" href="{% url url_ns|add:':list' %}">一覧に戻る</a>
-    {% if object %}<a class="btn danger right" href="{% url url_ns|add:':delete' object.pk %}">削除</a>{% endif %}
+    <a class="btn" href="{% url url_ns|add:':list' %}">{% icon "back" %}一覧に戻る</a>
+    {% if object %}<a class="btn danger right" href="{% url url_ns|add:':delete' object.pk %}">{% icon "trash" %}削除</a>{% endif %}
   </div>
 </form>
 {% endblock %}

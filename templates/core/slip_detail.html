@@ -4,17 +4,17 @@
 <div class="page-head no-print">
   <h1>{{ title }} {{ object.number }}</h1>
   <div class="actions">
-    <button type="button" class="btn" onclick="window.print()">印刷 / PDF保存</button>
+    <a class="btn" href="{% url url_ns|add:':list' %}">{% icon "back" %}一覧へ</a>
     {% if not object.is_locked %}
-    <a class="btn primary" href="{% url url_ns|add:':update' object.pk %}">編集</a>
-    <a class="btn danger" href="{% url url_ns|add:':delete' object.pk %}">削除</a>
+    <a class="btn danger" href="{% url url_ns|add:':delete' object.pk %}">{% icon "trash" %}削除</a>
+    <a class="btn" href="{% url url_ns|add:':update' object.pk %}">{% icon "edit" %}編集</a>
     {% endif %}
-    <a class="btn" href="{% url url_ns|add:':list' %}">一覧へ</a>
+    <button type="button" class="btn primary" onclick="window.print()">{% icon "print" %}印刷 / PDF保存</button>
   </div>
 </div>
 
 {% if object.invoice %}
-<p class="no-print">請求済み: <a href="{{ object.invoice.get_absolute_url }}">請求書 {{ object.invoice.number }}</a>（{{ object.invoice.closing_date|date:"Y/m/d" }} 締め）。変更するには先に請求書を取り消してください。</p>
+<p class="notice no-print">{% icon "invoice" %}<span>請求済み: <a href="{{ object.invoice.get_absolute_url }}">請求書 {{ object.invoice.number }}</a>（{{ object.invoice.closing_date|date:"Y/m/d" }} 締め）。変更するには先に請求書を取り消してください。</span></p>
 {% endif %}
 <article class="document">
   <header class="doc-head">
@@ -36,7 +36,7 @@
     <div class="doc-from">{% block from %}{% endblock %}</div>
   </div>
 
-  <div class="doc-total">{% block total_label %}合計金額{% endblock %}　<strong>¥{{ object.total|intcomma }}</strong>（税込）</div>
+  <div class="doc-total">{% block total_label %}合計金額{% endblock %}　<strong>{{ object.total|yen }}</strong>（税込）</div>
 
   <table class="doc-lines">
     <thead><tr><th>品名</th><th class="num">数量</th><th>単位</th><th class="num">単価</th><th class="num">金額</th><th>税率</th></tr></thead>
@@ -56,9 +56,9 @@
 
   <table class="doc-summary">
     {% for r in summary.by_rate %}
-    <tr><th>{% if r.rate %}{{ r.rate }}%対象{% else %}非課税{% endif %}</th><td class="num">¥{{ r.subtotal|intcomma }}</td><th>消費税</th><td class="num">¥{{ r.tax|intcomma }}</td></tr>
+    <tr><th>{% if r.rate %}{{ r.rate }}%対象{% else %}非課税{% endif %}</th><td class="num">{{ r.subtotal|yen }}</td><th>消費税</th><td class="num">{{ r.tax|yen }}</td></tr>
     {% endfor %}
-    <tr class="sum"><th>税抜合計</th><td class="num">¥{{ object.subtotal|intcomma }}</td><th>消費税合計</th><td class="num">¥{{ object.tax|intcomma }}</td></tr>
+    <tr class="sum"><th>税抜合計</th><td class="num">{{ object.subtotal|yen }}</td><th>消費税合計</th><td class="num">{{ object.tax|yen }}</td></tr>
   </table>
   {% for r in summary.by_rate %}{% if r.rate == 8 %}<p class="small">※は軽減税率（8%）対象です。</p>{% endif %}{% endfor %}
 

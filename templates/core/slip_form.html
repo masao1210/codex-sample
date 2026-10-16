@@ -30,7 +30,7 @@
       <template id="line-template">{% with f=formset.empty_form %}{% include "core/slip_line_row.html" %}{% endwith %}</template>
     </table>
     </div>
-    <button type="button" class="btn" id="add-line">＋ 行を追加</button>
+    <button type="button" class="btn" id="add-line">{% icon "plus" %}行を追加</button>
     <div class="slip-totals">
       <div>税抜金額 <span id="t-subtotal">0</span></div>
       <div id="t-by-rate"></div>
