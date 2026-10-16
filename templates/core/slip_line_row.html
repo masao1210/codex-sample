@@ -1,0 +1,10 @@
+<tr class="line{% if f.errors %} has-error{% endif %}">
+  <td>{{ f.id }}{{ f.product }}</td>
+  <td>{{ f.description }}{% for e in f.description.errors %}<div class="error">{{ e }}</div>{% endfor %}{% for e in f.non_field_errors %}<div class="error">{{ e }}</div>{% endfor %}</td>
+  <td>{{ f.quantity }}{% for e in f.quantity.errors %}<div class="error">{{ e }}</div>{% endfor %}</td>
+  <td>{{ f.unit }}</td>
+  <td>{{ f.unit_price }}{% for e in f.unit_price.errors %}<div class="error">{{ e }}</div>{% endfor %}</td>
+  <td>{{ f.tax_rate }}</td>
+  <td class="num line-amount">0</td>
+  <td class="center">{{ f.DELETE }}</td>
+</tr>

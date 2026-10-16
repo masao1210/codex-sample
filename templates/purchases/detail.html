@@ -1,0 +1,6 @@
+{% extends "core/slip_detail.html" %}
+{% block doc_title %}仕入伝票{% endblock %}
+{% block extra_meta %}{% if object.supplier_ref %}<div>先方伝票番号: {{ object.supplier_ref }}</div>{% endif %}{% endblock %}
+{% block partner_extra %}{% if partner.invoice_number %}<div>登録番号: {{ partner.invoice_number }}</div>{% endif %}{% endblock %}
+{% block from %}<div class="company">{{ COMPANY_NAME }}</div>{% endblock %}
+{% block total_label %}仕入金額{% endblock %}

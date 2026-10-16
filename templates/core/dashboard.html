@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}ホーム{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>ホーム</h1>
+  <div class="actions">
+    <a class="btn primary" href="{% url 'sales:create' %}">＋ 売上を入力</a>
+    <a class="btn" href="{% url 'purchases:create' %}">＋ 仕入を入力</a>
+  </div>
+</div>
+
+<div class="tiles">
+  <div class="tile"><div class="tile-label">今月の売上（税抜）</div><div class="tile-value">¥{{ this_month.sales|floatformat:0|intcomma }}</div></div>
+  <div class="tile"><div class="tile-label">今月の仕入（税抜）</div><div class="tile-value">¥{{ this_month.purchases|floatformat:0|intcomma }}</div></div>
+  <div class="tile"><div class="tile-label">売上 − 仕入</div><div class="tile-value">¥{{ this_month.diff|floatformat:0|intcomma }}</div></div>
+</div>
+
+<div class="grid2">
+  <section class="card">
+    <h2>月別推移（税抜）</h2>
+    <table class="list">
+      <thead><tr><th>月</th><th class="num">売上</th><th class="num">仕入</th><th class="num">差額</th></tr></thead>
+      <tbody>
+      {% for r in monthly %}
+        <tr><td>{{ r.month|date:"Y年n月" }}</td><td class="num">{{ r.sales|floatformat:0|intcomma }}</td><td class="num">{{ r.purchases|floatformat:0|intcomma }}</td><td class="num">{{ r.diff|floatformat:0|intcomma }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </section>
+  <div>
+    <section class="card">
+      <h2>最近の売上</h2>
+      <table class="list">
+        {% for s in recent_sales %}
+        <tr><td><a href="{{ s.get_absolute_url }}">{{ s.number }}</a></td><td>{{ s.date|date:"Y/m/d" }}</td><td>{{ s.customer.name }}</td><td class="num">{{ s.total|intcomma }}</td></tr>
+        {% empty %}<tr><td class="muted">まだありません</td></tr>{% endfor %}
+      </table>
+    </section>
+    <section class="card">
+      <h2>最近の仕入</h2>
+      <table class="list">
+        {% for s in recent_purchases %}
+        <tr><td><a href="{{ s.get_absolute_url }}">{{ s.number }}</a></td><td>{{ s.date|date:"Y/m/d" }}</td><td>{{ s.supplier.name }}</td><td class="num">{{ s.total|intcomma }}</td></tr>
+        {% empty %}<tr><td class="muted">まだありません</td></tr>{% endfor %}
+      </table>
+    </section>
+  </div>
+</div>
+{% endblock %}

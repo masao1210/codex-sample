@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head">
+  <h1>{{ title }}{% if object %}の編集{% else %}の新規登録{% endif %}</h1>
+</div>
+<form method="post" class="card form-grid">
+  {% csrf_token %}
+  {{ form.non_field_errors }}
+  {% for field in form %}
+    <div class="field{% if field.errors %} has-error{% endif %}{% if field.field.widget.input_type == 'checkbox' %} checkbox{% endif %}">
+      <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span class="req">*</span>{% endif %}</label>
+      {{ field }}
+      {% for e in field.errors %}<div class="error">{{ e }}</div>{% endfor %}
+    </div>
+  {% endfor %}
+  <div class="form-actions">
+    <button type="submit" class="btn primary">保存</button>
+    <a class="btn" href="{% url url_ns|add:':list' %}">一覧に戻る</a>
+    {% if object %}<a class="btn danger right" href="{% url url_ns|add:':delete' object.pk %}">削除</a>{% endif %}
+  </div>
+</form>
+{% endblock %}

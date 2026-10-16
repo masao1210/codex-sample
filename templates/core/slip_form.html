@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="page-head">
+  <h1>{{ title }}{% if object %} {{ object.number }} の編集{% else %}の新規入力{% endif %}</h1>
+</div>
+<form method="post" id="slip-form">
+  {% csrf_token %}
+  <div class="card form-grid">
+    {{ form.non_field_errors }}
+    {% for field in form %}
+      <div class="field{% if field.errors %} has-error{% endif %}{% if field.name == 'notes' %} wide{% endif %}">
+        <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span class="req">*</span>{% endif %}</label>
+        {{ field }}
+        {% for e in field.errors %}<div class="error">{{ e }}</div>{% endfor %}
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="card">
+    <h2>明細</h2>
+    {{ formset.management_form }}
+    {% for e in formset.non_form_errors %}<div class="error">{{ e }}</div>{% endfor %}
+    <div class="table-scroll">
+    <table class="lines">
+      <thead><tr><th>商品</th><th>品名</th><th class="num">数量</th><th>単位</th><th class="num">単価（税抜）</th><th>税率</th><th class="num">金額</th><th>削除</th></tr></thead>
+      <tbody id="line-rows">
+        {% for f in formset %}{% include "core/slip_line_row.html" %}{% endfor %}
+      </tbody>
+      <template id="line-template">{% with f=formset.empty_form %}{% include "core/slip_line_row.html" %}{% endwith %}</template>
+    </table>
+    </div>
+    <button type="button" class="btn" id="add-line">＋ 行を追加</button>
+    <div class="slip-totals">
+      <div>税抜金額 <span id="t-subtotal">0</span></div>
+      <div id="t-by-rate"></div>
+      <div>消費税 <span id="t-tax">0</span></div>
+      <div class="grand">合計 <span id="t-total">0</span></div>
+      <p class="muted small">※ 消費税は税率ごとに合計してから1円未満を切り捨てます。保存時にサーバー側で再計算します。</p>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button type="submit" class="btn primary">保存</button>
+    <a class="btn" href="{% if object %}{{ object.get_absolute_url }}{% else %}{% url url_ns|add:':list' %}{% endif %}">キャンセル</a>
+  </div>
+</form>
+{{ products|json_script:"product-data" }}
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/slip_form.js' %}"></script>{% endblock %}

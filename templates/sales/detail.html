@@ -1,0 +1,7 @@
+{% extends "core/slip_detail.html" %}
+{% block doc_title %}納品書{% endblock %}
+{% block from %}
+  <div class="company">{{ COMPANY_NAME }}</div>
+  {% if COMPANY_INVOICE_NUMBER %}<div>登録番号: {{ COMPANY_INVOICE_NUMBER }}</div>{% endif %}
+{% endblock %}
+{% block total_label %}ご請求金額{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block content %}
+<div class="page-head no-print">
+  <h1>{{ title }} {{ object.number }}</h1>
+  <div class="actions">
+    <button type="button" class="btn" onclick="window.print()">印刷 / PDF保存</button>
+    <a class="btn primary" href="{% url url_ns|add:':update' object.pk %}">編集</a>
+    <a class="btn danger" href="{% url url_ns|add:':delete' object.pk %}">削除</a>
+    <a class="btn" href="{% url url_ns|add:':list' %}">一覧へ</a>
+  </div>
+</div>
+
+<article class="document">
+  <header class="doc-head">
+    <h1 class="doc-title">{% block doc_title %}{% endblock %}</h1>
+    <div class="doc-meta">
+      <div>伝票番号: {{ object.number }}</div>
+      <div>日付: {{ object.date|date:"Y年n月j日" }}</div>
+      {% block extra_meta %}{% endblock %}
+    </div>
+  </header>
+
+  <div class="doc-parties">
+    <div class="doc-to">
+      {% if partner.postal_code %}<div>〒{{ partner.postal_code }}</div>{% endif %}
+      {% if partner.address %}<div>{{ partner.address }}</div>{% endif %}
+      <div class="partner-name">{{ partner.name }} {{ partner.honorific }}</div>
+      {% block partner_extra %}{% endblock %}
+    </div>
+    <div class="doc-from">{% block from %}{% endblock %}</div>
+  </div>
+
+  <div class="doc-total">{% block total_label %}合計金額{% endblock %}　<strong>¥{{ object.total|intcomma }}</strong>（税込）</div>
+
+  <table class="doc-lines">
+    <thead><tr><th>品名</th><th class="num">数量</th><th>単位</th><th class="num">単価</th><th class="num">金額</th><th>税率</th></tr></thead>
+    <tbody>
+    {% for l in lines %}
+      <tr>
+        <td>{{ l.description }}{% if l.tax_rate == 8 %} ※{% endif %}</td>
+        <td class="num">{{ l.quantity|floatformat:"-2"|intcomma }}</td>
+        <td>{{ l.unit }}</td>
+        <td class="num">{{ l.unit_price|floatformat:"-2"|intcomma }}</td>
+        <td class="num">{{ l.amount|intcomma }}</td>
+        <td>{{ l.get_tax_rate_display }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+  <table class="doc-summary">
+    {% for r in summary.by_rate %}
+    <tr><th>{% if r.rate %}{{ r.rate }}%対象{% else %}非課税{% endif %}</th><td class="num">¥{{ r.subtotal|intcomma }}</td><th>消費税</th><td class="num">¥{{ r.tax|intcomma }}</td></tr>
+    {% endfor %}
+    <tr class="sum"><th>税抜合計</th><td class="num">¥{{ object.subtotal|intcomma }}</td><th>消費税合計</th><td class="num">¥{{ object.tax|intcomma }}</td></tr>
+  </table>
+  {% for r in summary.by_rate %}{% if r.rate == 8 %}<p class="small">※は軽減税率（8%）対象です。</p>{% endif %}{% endfor %}
+
+  {% if object.notes %}<div class="doc-notes"><strong>備考</strong><br>{{ object.notes|linebreaksbr }}</div>{% endif %}
+</article>
+{% endblock %}

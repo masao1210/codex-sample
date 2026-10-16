@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head">
+  <h1>{{ title }}一覧</h1>
+  <div class="actions"><a class="btn primary" href="{% url url_ns|add:':create' %}">＋ 新規登録</a></div>
+</div>
+<form method="get" class="filters">
+  <input type="search" name="q" value="{{ request.GET.q }}" placeholder="コード・名称で検索">
+  <label class="check"><input type="checkbox" name="inactive" value="1" {% if request.GET.inactive %}checked{% endif %}> 無効も表示</label>
+  <button type="submit" class="btn">検索</button>
+</form>
+<table class="list">
+  <thead><tr>{% for f, label in columns %}<th>{{ label }}</th>{% endfor %}<th></th></tr></thead>
+  <tbody>
+  {% for obj, values in rows %}
+    <tr class="{% if not obj.is_active %}inactive{% endif %}">
+      {% for v in values %}<td>{% if forloop.first %}<a href="{% url url_ns|add:':update' obj.pk %}">{{ v }}</a>{% else %}{{ v|default_if_none:"" }}{% endif %}</td>{% endfor %}
+      <td>{% if not obj.is_active %}<span class="badge">無効</span>{% endif %}</td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="{{ columns|length|add:1 }}" class="muted">登録がありません。</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% include "core/pagination.html" %}
+{% endblock %}

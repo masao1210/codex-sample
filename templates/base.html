@@ -1,0 +1,37 @@
+{% load static %}<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ title|default:"販売管理" }}{% endblock %} | 販売管理</title>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body>
+  {% if user.is_authenticated %}
+  <header class="topbar no-print">
+    <a class="brand" href="{% url 'dashboard' %}">販売管理</a>
+    <nav>
+      <a href="{% url 'sales:list' %}">売上</a>
+      <a href="{% url 'purchases:list' %}">仕入</a>
+      <span class="sep"></span>
+      <a href="{% url 'customers:list' %}">得意先</a>
+      <a href="{% url 'suppliers:list' %}">仕入先</a>
+      <a href="{% url 'products:list' %}">商品</a>
+    </nav>
+    <form method="post" action="{% url 'logout' %}" class="logout">
+      {% csrf_token %}<span class="muted">{{ user.get_username }}</span>
+      <button type="submit" class="btn-link">ログアウト</button>
+    </form>
+  </header>
+  {% endif %}
+  <main>
+    {% if messages %}
+    <ul class="messages no-print">
+      {% for m in messages %}<li class="msg-{{ m.tags }}">{{ m }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

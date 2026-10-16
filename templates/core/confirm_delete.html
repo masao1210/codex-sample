@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card narrow">
+  <h1>{{ title }}の削除</h1>
+  <p>「{{ object }}」を削除します。元に戻せません。よろしいですか？</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn danger">削除する</button>
+    <a class="btn" href="javascript:history.back()">やめる</a>
+  </form>
+</div>
+{% endblock %}
